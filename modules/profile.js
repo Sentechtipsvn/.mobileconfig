@@ -66,8 +66,8 @@ export function buildWebClipProfile(values, iconDataURL) {
     payloads:[{
       PayloadType:'com.apple.webClip.managed', PayloadDisplayName:target.label,
       PayloadDescription:target.description || `WebClip ${target.label}`,
-      Label:target.label, URL:target.url, FullScreen:target.isWeb,
-      IgnoreManifestScope:target.isWeb, IsRemovable:true, Precomposed:true,
+      Label:target.label, URL:target.url, FullScreen:true,
+      IgnoreManifestScope:true, IsRemovable:true, Precomposed:true,
       Icon:new PlistData(iconDataURL.slice(iconDataURL.indexOf(',')+1))
     }]
   });

@@ -1,4 +1,4 @@
-# .mobileconfig · Sentechtipsvn — v3.0.0
+# .mobileconfig - Sentechtipsvn — v1.1.0
 
 Website tĩnh cho GitHub Pages, giao diện gọn màu `#5c5c5c`, Neumorphism nổi từ góc trên trái xuống dưới phải. Tạo XML plist trên thiết bị rồi gửi **toàn bộ văn bản thuần** sang phím tắt **Lưu cấu hình**. Phím tắt phụ trách đặt tên tệp, tạo `.mobileconfig`, menu chọn thư mục và lưu iCloud Drive.
 

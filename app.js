@@ -1,273 +1,150 @@
-'use strict';
+import { AUTHOR } from './modules/config.js';
+import { validateWebClip } from './modules/validation.js';
+import { buildWebClipProfile } from './modules/profile.js';
+import { loadDefaultIcon, processIcon } from './modules/icons.js';
+import { copyProfileText, openSaveShortcut, shortcutURL } from './modules/shortcuts.js';
+import { setupOffline, setupAuthorWave, setupFormTool } from './modules/platform.js';
 
-(() => {
-  const $ = id => document.getElementById(id);
-  const form = $('clip-form');
-  const name = $('display-name');
-  const url = $('clip-url');
-  const description = $('description');
-  const picker = $('icon-input');
-  const save = $('save-button');
-  const download = $('download-button');
-  const AUTHOR = 'Sentechtipsvn';
-  const MIME = 'application/x-apple-aspen-config';
-  const objectURLs = new Set();
-  let processing = false;
-  let sharing = false;
-  let imageSequence = 0;
+const $ = id => document.getElementById(id);
+const form = $('clip-form');
+const fields = {name:$('display-name'), url:$('clip-url'), description:$('description')};
+const errors = {name:$('name-error'), url:$('url-error'), description:$('description-error')};
+const primary = $('export-button');
+const picker = $('icon-input');
+let iconData = '';
+let iconBusy = true;
+let copying = false;
+let iconSequence = 0;
 
-  function defaultIcon() {
-    const canvas = document.createElement('canvas');
-    canvas.width = canvas.height = 180;
-    const ctx = canvas.getContext('2d');
-    ctx.fillStyle = '#5c5c5c'; ctx.fillRect(0, 0, 180, 180);
-    ctx.strokeStyle = '#ffffff'; ctx.lineWidth = 7;
-    ctx.lineJoin = ctx.lineCap = 'round';
-    ctx.beginPath(); ctx.moveTo(58, 39); ctx.lineTo(107, 39);
-    ctx.lineTo(130, 62); ctx.lineTo(130, 141); ctx.lineTo(58, 141); ctx.closePath();
-    ctx.moveTo(107, 39); ctx.lineTo(107, 65); ctx.lineTo(130, 65);
-    ctx.moveTo(76, 90); ctx.lineTo(112, 90);
-    ctx.moveTo(76, 111); ctx.lineTo(104, 111); ctx.stroke();
-    return canvas.toDataURL('image/png');
+function say(message) {
+  $('status').textContent = message;
+  $('status').hidden = !message;
+}
+function updateBusy() {
+  primary.disabled = $('copy-xml').disabled = iconBusy || copying;
+  $('export-label').textContent = iconBusy ? 'Đang chuẩn bị icon…' : copying ? 'Đang sao chép XML…' : 'Xuất cấu hình';
+  form.setAttribute('aria-busy', String(iconBusy || copying));
+  // Freeze form only during clipboard write; the XML being sent matches the visible form.
+  for (const input of Object.values(fields)) input.disabled = copying;
+  $('pick-icon').disabled = $('choose-icon').disabled = picker.disabled = copying;
+}
+function invalidatePreparedText() {
+  $('shortcut-retry').hidden = true;
+  $('manual-panel').hidden = true;
+  $('manual-xml').value = '';
+}
+function showErrors(messages = {}) {
+  for (const key of Object.keys(fields)) {
+    const message = messages[key] || '';
+    fields[key].setAttribute('aria-invalid', String(Boolean(message)));
+    errors[key].hidden = !message;
+    errors[key].textContent = message;
   }
+}
+function currentInput() {
+  return {name:fields.name.value, url:fields.url.value, description:fields.description.value};
+}
+function createXML() {
+  const checked = validateWebClip(currentInput());
+  showErrors(checked.errors);
+  if (!checked.values) {
+    fields[Object.keys(checked.errors)[0]].focus();
+    say('Kiểm tra lại thông tin được đánh dấu.');
+    return null;
+  }
+  if (!iconData) {
+    say('Chưa tải được icon mặc định. Hãy chọn ảnh icon rồi thử lại.');
+    return null;
+  }
+  return buildWebClipProfile(checked.values, iconData);
+}
+function updateIcon(data) {
+  iconData = data;
+  $('icon-preview').src = data;
+  invalidatePreparedText();
+}
 
-  let iconData = defaultIcon();
-  function updateIcon(data) {
-    iconData = data;
-    $('icon-preview').src = data;
-    $('home-icon').src = data;
+async function exportText(openShortcut) {
+  if (iconBusy || copying) return;
+  let xml;
+  try { xml = createXML(); }
+  catch (error) { say(error.message || 'Không tạo được cấu hình.'); return; }
+  if (!xml) return;
+  copying = true; updateBusy(); invalidatePreparedText();
+  try {
+    // No async work precedes this call. Clipboard must complete before opening Shortcuts.
+    await copyProfileText(xml);
+  } catch (error) {
+    $('manual-xml').value = xml;
+    $('manual-panel').hidden = false;
+    say('Không sao chép tự động được. Chọn toàn bộ XML bên dưới, sao chép rồi mở phím tắt.');
+    copying = false; updateBusy();
+    return;
   }
-  updateIcon(iconData);
+  $('shortcut-retry').hidden = false;
+  say(openShortcut ? 'Đã sao chép XML. Nếu phím tắt chưa mở, nhấn “Mở Lưu cấu hình”.' : 'Đã sao chép toàn bộ XML. Mở phím tắt khi sẵn sàng.');
+  copying = false; updateBusy();
+  if (openShortcut && !document.hidden) {
+    try { openSaveShortcut(); }
+    catch { say('XML đã được sao chép. Nhấn “Mở Lưu cấu hình” để tiếp tục.'); }
+  }
+  // We cannot observe the user's folder selection or confirm a file was saved by Shortcuts.
+}
 
-  function say(message) { $('status').textContent = message; }
-  function setBusy() {
-    save.disabled = download.disabled = processing || sharing;
-    $('save-label').textContent = processing ? 'Đang xử lý icon…' : sharing ? 'Đang mở bảng chia sẻ…' : 'Tạo & lưu vào Tệp';
-    form.setAttribute('aria-busy', String(processing || sharing));
-  }
-  function setError(input, id, message) {
-    input.setAttribute('aria-invalid', String(Boolean(message)));
-    $(id).textContent = message;
-    $(id).hidden = !message;
-  }
-  const illegalXML = /[\u0000-\u0008\u000B\u000C\u000E-\u001F\uFFFE\uFFFF]|[\uD800-\uDFFF]/u;
-  const blockedSchemes = new Set(['javascript:', 'data:', 'vbscript:', 'file:', 'blob:', 'about:']);
-  function parseTargetURL(value) {
-    const raw = value.trim();
-    // Native app schemes may have no hostname (zalo://, tel:+84, shortcuts://...).
-    if (!/^[a-z][a-z0-9+.-]*:/i.test(raw) || /\s/u.test(raw) || illegalXML.test(raw) || raw.length > 4096 || /%(?![a-f0-9]{2})/i.test(raw)) throw new Error('URL không hợp lệ.');
-    const parsed = new URL(raw);
-    if (blockedSchemes.has(parsed.protocol) || parsed.username || parsed.password) throw new Error('Scheme không được hỗ trợ.');
-    const isWeb = ['http:', 'https:'].includes(parsed.protocol);
-    if (isWeb && (!/^https?:\/\/[^/\\]/i.test(raw) || !parsed.hostname || raw.includes('\\'))) throw new Error('URL website không hợp lệ.');
-    // Preserve custom deep links byte-for-byte; do not rewrite parameters, slashes or case.
-    return {url:isWeb ? parsed.href : raw, isWeb};
-  }
-  function readValues(focus = true) {
-    const label = name.value.trim();
-    const rawURL = url.value.trim();
-    const details = description.value.trim();
-    let nameError = '';
-    let urlError = '';
-    let parsed;
-    if (!label) nameError = 'Nhập tên hiển thị cho WebClip.';
-    else if (label.length > 60 || illegalXML.test(label)) nameError = 'Tên tối đa 60 ký tự và không chứa ký tự điều khiển.';
-    try {
-      parsed = parseTargetURL(rawURL);
-    } catch { urlError = 'Nhập URL đầy đủ hoặc scheme như zalo://, shortcuts://, tel:… Không dùng khoảng trắng (dùng %20), thông tin đăng nhập hay scheme script/tệp nội bộ.'; }
-    setError(name, 'name-error', nameError);
-    setError(url, 'url-error', urlError);
-    if (nameError || urlError) {
-      say('Kiểm tra lại thông tin được đánh dấu.');
-      if (focus) (nameError ? name : url).focus();
-      return null;
-    }
-    if (details.length > 1000 || illegalXML.test(details)) {
-      say('Mô tả tối đa 1.000 ký tự và không chứa ký tự điều khiển.');
-      if (focus) description.focus();
-      return null;
-    }
-    return {label, url: parsed.url, isWeb:parsed.isWeb, description: details};
-  }
-  function escapeXML(value) {
-    return value.replace(/[&<>"']/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&apos;'}[ch]));
-  }
-  function uuid() {
-    if (crypto.randomUUID) return crypto.randomUUID().toUpperCase();
-    const bytes = crypto.getRandomValues(new Uint8Array(16));
-    bytes[6] = (bytes[6] & 15) | 64;
-    bytes[8] = (bytes[8] & 63) | 128;
-    const h = [...bytes].map(b => b.toString(16).padStart(2, '0')).join('');
-    return `${h.slice(0,8)}-${h.slice(8,12)}-${h.slice(12,16)}-${h.slice(16,20)}-${h.slice(20)}`.toUpperCase();
-  }
-  function buildProfile(values) {
-    const profileUUID = uuid();
-    const clipUUID = uuid();
-    const identifier = `vn.sentechtipsvn.webclip.${profileUUID.toLowerCase()}`;
-    const text = value => `<string>${escapeXML(value)}</string>`;
-    const pair = (key, value) => `    <key>${key}</key>\n    ${text(value)}`;
-    return `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-${pair('PayloadType', 'Configuration')}
-    <key>PayloadVersion</key><integer>1</integer>
-${pair('PayloadIdentifier', identifier)}
-${pair('PayloadUUID', profileUUID)}
-${pair('PayloadDisplayName', values.label)}
-${pair('PayloadDescription', values.description || `WebClip ${values.label} · ${AUTHOR}`)}
-${pair('PayloadOrganization', AUTHOR)}
-    <key>PayloadRemovalDisallowed</key><false/>
-    <key>PayloadContent</key>
-    <array>
-      <dict>
-${pair('PayloadType', 'com.apple.webClip.managed')}
-        <key>PayloadVersion</key><integer>1</integer>
-${pair('PayloadIdentifier', identifier + '.clip')}
-${pair('PayloadUUID', clipUUID)}
-${pair('PayloadDisplayName', values.label)}
-${pair('PayloadDescription', values.description || `WebClip ${values.label}`)}
-${pair('PayloadOrganization', AUTHOR)}
-${pair('Label', values.label)}
-${pair('URL', values.url)}
-        <key>FullScreen</key><${values.isWeb ? 'true' : 'false'}/>
-        <key>IgnoreManifestScope</key><${values.isWeb ? 'true' : 'false'}/>
-        <key>IsRemovable</key><true/>
-        <key>Precomposed</key><true/>
-        <key>Icon</key>
-        <data>${iconData.split(',')[1]}</data>
-      </dict>
-    </array>
-</dict>
-</plist>\n`;
-  }
-  function createFile() {
-    if (processing || sharing) return null;
-    const values = readValues();
-    if (!values) return null;
-    const filename = values.label.normalize('NFKD').replace(/[\u0300-\u036f]/g, '').replace(/[đĐ]/g, 'd').replace(/[^a-zA-Z0-9_-]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 70) || 'WebClip';
-    return new File([buildProfile(values)], `${filename}.mobileconfig`, {type: MIME});
-  }
-  function downloadFile(file) {
-    const blobURL = URL.createObjectURL(file);
-    objectURLs.add(blobURL);
-    const anchor = document.createElement('a');
-    anchor.href = blobURL; anchor.download = file.name; anchor.hidden = true;
-    document.body.append(anchor); anchor.click(); anchor.remove();
-    setTimeout(() => { URL.revokeObjectURL(blobURL); objectURLs.delete(blobURL); }, 60000);
-    say(`Đã yêu cầu tải ${file.name}. Kiểm tra mục Tải về; nếu chỉ hiện bản xem trước, mở bằng Safari rồi lưu hoặc chia sẻ vào Tệp.`);
-  }
-  form.addEventListener('submit', async event => {
-    event.preventDefault();
-    const file = createFile();
-    if (!file) return;
-    let canShare = false;
-    try { canShare = Boolean(navigator.share && navigator.canShare && navigator.canShare({files:[file]})); } catch {}
-    if (!canShare) { downloadFile(file); return; }
-    sharing = true; setBusy();
-    try {
-      // Invoke immediately within the user's gesture; no image work or network awaits here.
-      await navigator.share({files:[file]});
-      say('Bảng chia sẻ đã đóng. Nếu bạn chọn “Lưu vào Tệp”, hãy kiểm tra tệp ở thư mục đã chọn.');
-    } catch (error) {
-      say(error.name === 'AbortError' ? 'Đã hủy chia sẻ. Bạn có thể tạo và lưu lại.' : 'Không mở được chia sẻ tệp này. Nhấn “Tải xuống .mobileconfig”; nếu đang mở từ Màn hình chính, thử lại trong Safari.');
-    } finally { sharing = false; setBusy(); }
+form.addEventListener('submit', event => { event.preventDefault(); void exportText(true); });
+$('copy-xml').addEventListener('click', () => { void exportText(false); });
+for (const [key,input] of Object.entries(fields)) {
+  input.addEventListener('input', () => {
+    invalidatePreparedText(); say('');
+    errors[key].hidden = true; errors[key].textContent = '';
+    input.setAttribute('aria-invalid','false');
+    if (key === 'name') $('preview-name').textContent = input.value.trim() || 'WebClip của bạn';
   });
-  download.addEventListener('click', () => { const file = createFile(); if (file) downloadFile(file); });
-  name.addEventListener('input', () => { $('home-name').textContent = name.value.trim() || 'WebClip của bạn'; setError(name, 'name-error', ''); });
-  url.addEventListener('input', () => {
-    setError(url, 'url-error', '');
-    try { $('open-mode').textContent = parseTargetURL(url.value).isWeb ? 'Toàn màn hình' : 'Ứng dụng / hành động'; }
-    catch { $('open-mode').textContent = url.value.trim() ? 'Chưa xác định' : 'Toàn màn hình'; }
-  });
-  $('pick-icon').addEventListener('click', () => picker.click());
-  $('choose-icon').addEventListener('click', () => picker.click());
+}
+$('pick-icon').addEventListener('click', () => picker.click());
+$('choose-icon').addEventListener('click', () => picker.click());
+$('shortcut-retry').href = $('manual-shortcut').href = shortcutURL();
+$('select-xml').addEventListener('click', () => {
+  const text = $('manual-xml'); text.focus(); text.select(); text.setSelectionRange(0,text.value.length);
+  say('XML đã được chọn. Dùng lệnh Sao chép của iOS, rồi mở phím tắt.');
+});
 
-  function loadImage(file) {
-    return new Promise((resolve, reject) => {
-      const image = new Image();
-      const localURL = URL.createObjectURL(file);
-      image.onload = () => { URL.revokeObjectURL(localURL); resolve(image); };
-      image.onerror = () => { URL.revokeObjectURL(localURL); reject(new Error('Không đọc được ảnh. Hãy dùng PNG, JPG hoặc WebP.')); };
-      image.src = localURL;
-    });
+picker.addEventListener('change', async () => {
+  const file = picker.files && picker.files[0];
+  picker.value = '';
+  if (!file) return;
+  const sequence = ++iconSequence;
+  iconBusy = true; updateBusy(); invalidatePreparedText(); say('');
+  try {
+    const data = await processIcon(file);
+    if (sequence === iconSequence) updateIcon(data);
+  } catch (error) {
+    if (sequence === iconSequence) say(error.message || 'Không xử lý được icon.');
+  } finally {
+    if (sequence === iconSequence) { iconBusy = false; updateBusy(); }
   }
-  picker.addEventListener('change', async () => {
-    const file = picker.files && picker.files[0];
-    picker.value = '';
-    if (!file) return;
-    const sequence = ++imageSequence;
-    // Cancel stale jobs even when the newest selection is rejected.
-    if (!['image/png','image/jpeg','image/webp'].includes(file.type) || file.size > 10 * 1024 * 1024) {
-      processing = false; setBusy();
-      say('Chọn ảnh PNG, JPG hoặc WebP không quá 10 MB. Icon trước đó vẫn được giữ.');
-      return;
+});
+const initialSequence = iconSequence;
+loadDefaultIcon().then(data => {
+  if (initialSequence === iconSequence) updateIcon(data);
+}).catch(() => {
+  if (initialSequence === iconSequence) say('Chưa tải được icon mặc định. Hãy chọn ảnh icon.');
+}).finally(() => {
+  if (initialSequence === iconSequence) { iconBusy = false; updateBusy(); }
+});
+
+setupOffline($('offline-status'));
+setupAuthorWave($('author-link'));
+setupFormTool({
+  isBusy:() => copying || iconBusy,
+  stage(input) {
+    const checked = validateWebClip(input);
+    if (!checked.values) throw new Error(Object.values(checked.errors)[0]);
+    for (const key of Object.keys(fields)) {
+      fields[key].value = input[key] || '';
+      fields[key].dispatchEvent(new Event('input'));
     }
-    processing = true; setBusy(); say('Đang chuẩn bị icon…');
-    try {
-      const image = await loadImage(file);
-      if (sequence !== imageSequence) return;
-      if (image.naturalWidth * image.naturalHeight > 24000000) throw new Error('Ảnh quá lớn. Hãy chọn ảnh tối đa 24 megapixel.');
-      const canvas = document.createElement('canvas');
-      canvas.width = canvas.height = 180;
-      const ctx = canvas.getContext('2d');
-      ctx.fillStyle = '#5c5c5c'; ctx.fillRect(0, 0, 180, 180);
-      ctx.imageSmoothingEnabled = true; ctx.imageSmoothingQuality = 'high';
-      const size = Math.min(image.naturalWidth, image.naturalHeight);
-      // iOS rounds the icon itself; embed an opaque, square PNG without pre-rounded edges.
-      ctx.drawImage(image, (image.naturalWidth-size)/2, (image.naturalHeight-size)/2, size, size, 0, 0, 180, 180);
-      updateIcon(canvas.toDataURL('image/png'));
-      $('icon-hint').textContent = 'Đã cắt giữa ảnh · PNG 180 × 180';
-      say('Icon đã sẵn sàng.');
-    } catch (error) {
-      if (sequence === imageSequence) say(error.message || 'Không xử lý được ảnh. Hãy thử ảnh khác.');
-    } finally { if (sequence === imageSequence) { processing = false; setBusy(); } }
-  });
-
-  if ('serviceWorker' in navigator && window.isSecureContext) {
-    navigator.serviceWorker.register('./sw.js', {scope:'./'}).then(async () => {
-      await navigator.serviceWorker.ready;
-      $('offline-status').textContent = navigator.onLine ? 'Sẵn sàng dùng offline trên thiết bị này.' : 'Đang dùng offline.';
-    }).catch(() => { $('offline-status').textContent = 'Chế độ offline chưa sẵn sàng. Bạn vẫn có thể tạo tệp khi trang đang mở.'; });
-  } else {
-    $('offline-status').textContent = 'Mở qua HTTPS trên GitHub Pages để bật chế độ offline.';
+    showErrors();
+    return {...currentInput(), author:AUTHOR};
   }
-  window.addEventListener('offline', () => { $('offline-status').textContent = 'Đang dùng offline. Website đích có thể vẫn cần mạng.'; });
-  window.addEventListener('online', () => { $('offline-status').textContent = 'Đã kết nối mạng.'; });
-
-  // Animate only the small footer text, and only while it is on screen.
-  const authorLink = $('author-link');
-  if ('IntersectionObserver' in window) {
-    let visible = false;
-    const updateWave = () => authorLink.classList.toggle('wave-active', visible && !document.hidden);
-    const observer = new IntersectionObserver(entries => { visible = entries[0].isIntersecting; updateWave(); });
-    observer.observe(authorLink);
-    document.addEventListener('visibilitychange', updateWave);
-  } else { authorLink.classList.add('wave-active'); }
-
-  // Optional WebMCP: stage the same visible form. File export remains a user gesture.
-  const context = document.modelContext;
-  if (context && typeof context.registerTool === 'function') {
-    const lifecycle = new AbortController();
-    try {
-      Promise.resolve(context.registerTool({
-        name:'configure_webclip', title:'Điền thông tin WebClip',
-        description:'Điền tên, URL và mô tả vào biểu mẫu WebClip. Không tải hoặc chia sẻ tệp.',
-        inputSchema:{type:'object',properties:{name:{type:'string',minLength:1,maxLength:60},url:{type:'string',maxLength:4096},description:{type:'string',maxLength:1000}},required:['name','url'],additionalProperties:false},
-        annotations:{readOnlyHint:false,untrustedContentHint:false},
-        execute(input) {
-          if (processing || sharing) throw new Error('Đang xử lý. Hãy thử lại sau.');
-          if (!input || typeof input.name !== 'string' || typeof input.url !== 'string' || (input.description !== undefined && typeof input.description !== 'string') || Object.keys(input).some(key => !['name','url','description'].includes(key))) throw new Error('Thông tin không hợp lệ.');
-          let parsed;
-          try { parsed = parseTargetURL(input.url); } catch { throw new Error('URL không hợp lệ.'); }
-          if (!input.name.trim() || input.name.length > 60 || (input.description || '').length > 1000 || [input.name,input.description || ''].some(value => illegalXML.test(value))) throw new Error('Thông tin không hợp lệ.');
-          name.value = input.name; url.value = input.url; description.value = input.description || '';
-          name.dispatchEvent(new Event('input')); url.dispatchEvent(new Event('input'));
-          say('Đã điền thông tin. Nhấn nút tạo tệp khi sẵn sàng.');
-          return {name:name.value,url:url.value,description:description.value,author:AUTHOR};
-        }
-      }, {signal:lifecycle.signal})).catch(() => {});
-      window.addEventListener('pagehide', event => { if (!event.persisted) lifecycle.abort(); });
-    } catch {}
-  }
-})();
+});

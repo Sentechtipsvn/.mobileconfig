@@ -1,9 +1,9 @@
 'use strict';
 // Bump VERSION after changing any cached asset. Keep each repository's cache isolated.
-const VERSION = 'v1.1.0';
+const VERSION = 'v2.0.0';
 const PREFIX = 'sentechtipsvn-webclip-' + encodeURIComponent(new URL(self.registration.scope).pathname) + '-';
 const CACHE = PREFIX + VERSION;
-const ASSETS = ['./', './index.html', './styles.css', './app.js', './manifest.webmanifest', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
+const ASSETS = ['./', './index.html', './styles.css', './app.js', './manifest.webmanifest', './modules/config.js', './modules/validation.js', './modules/profile.js', './modules/icons.js', './modules/shortcuts.js', './modules/platform.js', './icons/default-webclip.png', './icons/apple-touch-icon.png', './icons/icon-192.png', './icons/icon-512.png', './icons/icon-maskable-512.png'];
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE).then(cache => cache.addAll(ASSETS)));
   // A new version waits until old windows close, avoiding mixed versions during file export.

@@ -32,59 +32,65 @@
   <link rel="apple-touch-startup-image" href="./launch/768x1024-2x-portrait.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: portrait)">
   <link rel="apple-touch-startup-image" href="./launch/768x1024-2x-landscape.png" media="(device-width: 768px) and (device-height: 1024px) and (-webkit-device-pixel-ratio: 2) and (orientation: landscape)">
   <link rel="stylesheet" href="./styles.css">
-  <script defer src="./app.js"></script>
+  <script type="module" src="./app.js"></script>
 </head>
 <body>
   <main class="app">
     <header class="header">
       <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7zM14 3v5h4M10 12h5M10 16h5"/></svg></div>
-      <div><p class="eyebrow">SENTECHTIPSVN</p><h1>.mobileconfig</h1></div>
+      <div class="brand-copy"><p class="eyebrow">SENTECHTIPSVN</p><h1>.mobileconfig</h1></div>
       <span class="version">iOS</span>
     </header>
-    <div class="workspace">
-      <section class="editor" aria-labelledby="editor-title">
-        <h2 id="editor-title" class="sr-only">Thông tin cấu hình</h2>
-        <hr class="form-divider heading-divider" aria-hidden="true">
-        <form id="clip-form" novalidate>
-          <div class="icon-picker">
-            <button class="icon-button raised" id="pick-icon" type="button" aria-label="Chọn ảnh icon">
-              <img id="icon-preview" src="./icons/icon-192.png" width="76" height="76" alt="Icon WebClip">
-              <span class="icon-plus" aria-hidden="true">+</span>
-            </button>
-            <div class="icon-copy"><label for="icon-input" class="field-title">Ảnh icon</label><p id="icon-hint">PNG, JPG, WebP · tối đa 10 MB</p><button class="text-button" id="choose-icon" type="button">Chọn ảnh</button></div>
-            <input class="sr-only" id="icon-input" type="file" accept="image/png,image/jpeg,image/webp" aria-describedby="icon-hint">
-          </div>
-          <div class="field">
-            <label for="display-name">Tên hiển thị <span aria-hidden="true">*</span></label>
-            <input id="display-name" name="displayName" type="text" placeholder="Tên hiển thị ngoài màn hình chính" maxlength="60" required autocomplete="off" enterkeyhint="next" aria-describedby="name-error">
-            <p class="field-error" id="name-error" hidden></p>
-          </div>
-          <div class="field">
-            <label for="clip-url">URL <span aria-hidden="true">*</span></label>
-            <input id="clip-url" name="url" type="text" inputmode="url" placeholder="https://example.com hoặc zalo://" maxlength="4096" required autocapitalize="none" autocomplete="off" spellcheck="false" enterkeyhint="next" aria-describedby="url-hint url-error">
-            <p class="field-hint" id="url-hint">URL website hoặc scheme mở ứng dụng, như fb://, shortcuts://…</p>
-            <p class="field-error" id="url-error" hidden></p>
-          </div>
-          <div class="field">
-            <label for="description">Mô tả <span class="optional">Không bắt buộc</span></label>
-            <textarea id="description" name="description" rows="3" maxlength="1000" placeholder="Mô tả ngắn cho hồ sơ cấu hình…"></textarea>
-          </div>
-          <hr class="form-divider action-divider" aria-hidden="true">
-          <button class="primary raised" id="save-button" type="submit"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5"/></svg><span id="save-label">Tạo & lưu vào Tệp</span></button>
-          <button class="secondary raised" id="download-button" type="button">Tải xuống .mobileconfig</button>
-          <p class="status" id="status" role="status" aria-live="polite">Tệp được tạo trên thiết bị của bạn.</p>
-        </form>
-      </section>
-      <aside class="preview" aria-labelledby="preview-title">
-        <div class="section-heading"><h2 id="preview-title">Xem trước</h2><span class="meta">Màn hình chính</span></div>
-        <div class="home-preview raised"><img id="home-icon" src="./icons/icon-192.png" alt="" width="92" height="92"><p id="home-name">WebClip của bạn</p></div>
-        <dl class="summary"><div><dt>Chế độ mở</dt><dd id="open-mode">Toàn màn hình</dd></div><div><dt>Icon</dt><dd>PNG · 180 × 180</dd></div><div><dt>Có thể gỡ</dt><dd>Có</dd></div></dl>
-        <details class="help"><summary>Cách dùng trên iPhone</summary><div class="help-content"><ol><li>Nhập tên, URL và chọn icon nếu muốn.</li><li>Nhấn <strong>Tạo & lưu vào Tệp</strong>, rồi chọn <strong>Lưu vào Tệp</strong> trong bảng chia sẻ. Nếu không hỗ trợ, dùng nút tải xuống.</li><li>Việc mở tệp từ Tệp có thể chỉ hiện bản xem trước. Để cài hồ sơ, thử mở bằng Safari hoặc Apple Configurator; sau khi iOS nhận hồ sơ, vào <strong>Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị</strong>.</li></ol><p>Scheme mở ứng dụng cần app đích đã cài và hỗ trợ URL đó. iOS có thể hỏi xác nhận hoặc đi qua Safari.</p><p>Hồ sơ chưa ký số nên iOS có thể hiện “Chưa được xác minh”. Tác giả là nhãn thông tin, không phải chữ ký xác thực.</p><p>Thêm công cụ này vào Màn hình chính: mở bằng Safari → Chia sẻ → Thêm vào Màn hình chính.</p></div></details>
-        <p class="offline-note" id="offline-status">Đang chuẩn bị chế độ offline…</p>
-      </aside>
-    </div>
-    <footer>Được tạo bởi <a class="author-link" id="author-link" href="https://github.com/Sentechtipsvn/.mobileconfig" target="_blank" rel="noopener noreferrer">Sentechtipsvn</a></footer>
+    <hr class="divider" aria-hidden="true">
+    <form id="clip-form" novalidate aria-label="Tạo cấu hình WebClip">
+      <div class="icon-row">
+        <button class="icon-button raised" id="pick-icon" type="button" aria-label="Chọn ảnh icon">
+          <img id="icon-preview" src="./icons/default-webclip.png" width="68" height="68" alt="Icon WebClip">
+          <span class="icon-plus" aria-hidden="true">+</span>
+        </button>
+        <div class="icon-copy"><p id="preview-name">WebClip của bạn</p><button id="choose-icon" class="text-button" type="button">Chọn icon</button></div>
+        <input class="sr-only" id="icon-input" type="file" accept="image/png,image/jpeg,image/webp" aria-label="Ảnh icon">
+      </div>
+      <div class="field">
+        <label for="display-name">Tên hiển thị</label>
+        <input id="display-name" name="displayName" type="text" placeholder="Tên trên Màn hình chính" maxlength="60" required autocomplete="off" enterkeyhint="next" aria-describedby="name-error">
+        <p id="name-error" class="field-error" hidden></p>
+      </div>
+      <div class="field">
+        <label for="clip-url">URL</label>
+        <input id="clip-url" name="url" type="text" inputmode="url" placeholder="Website hoặc URL scheme" maxlength="4096" required autocapitalize="none" autocomplete="off" spellcheck="false" enterkeyhint="next" aria-describedby="url-error">
+        <p id="url-error" class="field-error" hidden></p>
+      </div>
+      <div class="field">
+        <label for="description">Mô tả <span class="optional">Tùy chọn</span></label>
+        <textarea id="description" name="description" rows="2" maxlength="1000" placeholder="Mô tả cấu hình" aria-describedby="description-error"></textarea>
+        <p id="description-error" class="field-error" hidden></p>
+      </div>
+      <hr class="divider action-divider" aria-hidden="true">
+      <button class="primary raised" id="export-button" type="submit" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5"/></svg><span id="export-label">Đang chuẩn bị icon…</span></button>
+      <p id="status" class="status" role="status" aria-live="polite" hidden></p>
+      <a id="shortcut-retry" class="recovery-link" href="#" hidden>Mở “Lưu cấu hình”</a>
+    </form>
+    <section id="manual-panel" class="manual-panel" aria-labelledby="manual-title" hidden>
+      <h2 id="manual-title">Sao chép XML thủ công</h2>
+      <p>Chọn toàn bộ văn bản, sao chép rồi mở phím tắt. Nội dung không phải JSON.</p>
+      <textarea id="manual-xml" rows="5" readonly spellcheck="false" aria-label="Toàn bộ XML cấu hình"></textarea>
+      <button id="select-xml" class="text-button" type="button">Chọn toàn bộ XML</button>
+      <a id="manual-shortcut" class="recovery-link" href="#">Đã sao chép — mở phím tắt</a>
+    </section>
+    <details class="help" id="help">
+      <summary>Trợ giúp</summary>
+      <div class="help-content">
+        <p>Xuất XML văn bản thuần vào clipboard, rồi mở phím tắt <strong>“Lưu cấu hình”</strong>. Phím tắt tự hỏi tên, tạo tệp <code>.mobileconfig</code> và chọn thư mục lưu.</p>
+        <p>Website có thể hỏi quyền clipboard hoặc xác nhận mở Shortcuts. Nút xuất sẽ thay nội dung clipboard hiện tại.</p>
+        <p>URL nhận website và scheme như <code>zalo://</code>, <code>shortcuts://</code>, <code>tel:</code>. App đích cần hỗ trợ scheme đó.</p>
+        <p>Icon: PNG, JPG hoặc WebP, tối đa 10 MB / 24 megapixel. Ảnh được cắt giữa và xuất PNG 180 × 180.</p>
+        <button id="copy-xml" class="text-button" type="button" disabled>Chỉ sao chép XML</button>
+        <p id="offline-status">Đang chuẩn bị chế độ offline…</p>
+      </div>
+    </details>
+    <footer>Được tạo bởi <a class="author-link" id="author-link" href="https://github.com/Sentechtipsvn" target="_blank" rel="noopener noreferrer">Sentechtipsvn</a></footer>
   </main>
-  <noscript><p class="noscript">Bật JavaScript để tạo tệp mobileconfig.</p></noscript>
+  <noscript><p class="noscript">Bật JavaScript để tạo cấu hình.</p></noscript>
 </body>
 </html>

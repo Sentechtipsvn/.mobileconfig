@@ -1,122 +1,117 @@
-# .mobileconfig · Sentechtipsvn
+# .mobileconfig · Sentechtipsvn — v2.0.0
 
-Bộ mã nguồn tĩnh để tạo tệp `.mobileconfig` có một WebClip iOS. Không cần npm, API, máy chủ ứng dụng hoặc bước build.
+Giao diện Neumorphism màu `#5c5c5c`, tạo XML hồ sơ WebClip rồi chuyển **văn bản thuần** sang phím tắt **Lưu cấu hình**. Phím tắt phụ trách tên tệp, tạo `.mobileconfig`, menu thư mục và lưu vào iCloud Drive.
 
-## Đưa lên GitHub Pages
+## Luồng xuất
 
-1. Giải nén ZIP. Tạo repository GitHub của bạn.
-2. Đưa **nội dung bên trong** thư mục `sentechtipsvn-webclip` vào thư mục gốc repository: `index.html`, `styles.css`, `app.js`, `sw.js`, `manifest.webmanifest`, các thư mục `icons`, `launch`, `README.md` và `.nojekyll`. Không chỉ tải nguyên tệp ZIP lên repository.
-3. Vào **Settings → Pages → Build and deployment**.
-4. Chọn **Deploy from a branch**, nhánh **main**, thư mục **/(root)**, rồi **Save**.
-5. Chờ GitHub triển khai và mở URL được hiển thị trong Pages. Với repository dự án, URL thường có dạng `https://TEN-TAI-KHOAN.github.io/TEN-REPOSITORY/`.
+1. Nhập tên hiển thị, URL và mô tả tùy chọn; chọn icon nếu muốn.
+2. Nhấn **Xuất cấu hình**.
+3. Website tạo XML plist, đợi sao chép toàn bộ XML vào clipboard thành công.
+4. Website thử mở:
 
-Tất cả đường dẫn tài nguyên và scope đều tương đối. Bộ mã dùng được cả domain gốc, tên miền riêng và đường dẫn repository. Nếu đổi chỗ các tệp hoặc tên thư mục, cần sửa liên kết tương ứng. Bản này là **v1.1.0**: khi cập nhật, ghi đè các tệp `index.html`, `styles.css`, `app.js`, `manifest.webmanifest`, `sw.js` và `README.md`; giữ nguyên các thư mục ảnh.
+```text
+shortcuts://run-shortcut?name=L%C6%B0u%20c%E1%BA%A5u%20h%C3%ACnh&input=clipboard
+```
 
-Hướng dẫn chính thức: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
+5. Shortcuts nhận đầu vào là **toàn bộ XML**. Phím tắt hỏi tên tệp và tự lưu theo luồng của bạn.
 
-## Thêm công cụ vào Màn hình chính iOS
+Không có JSON, không có base64 bọc quanh cả nội dung, không truyền URL blob, không gọi bảng chia sẻ. Base64 **bên trong phần `<data>` của icon** vẫn phải có vì đó là cấu trúc chuẩn của plist; đây không phải cách đóng gói dữ liệu gửi sang phím tắt.
 
-Mở URL **HTTPS bằng Safari**, nhấn **Chia sẻ → Thêm vào Màn hình chính → Thêm**. Mở lại bằng icon vừa tạo để dùng chế độ độc lập, không có thanh địa chỉ Safari.
+Nút này thay nội dung clipboard hiện tại. iOS có thể hỏi quyền clipboard hoặc xác nhận mở Shortcuts. Nếu phím tắt không tự mở, nhấn liên kết **Mở “Lưu cấu hình”**. Website không thể kiểm tra phím tắt đã tồn tại hay xác nhận tệp đã được lưu. Vì vậy giao diện chỉ báo đã sao chép XML, không báo “đã lưu”.
 
-Trang có manifest, các thẻ meta iOS, apple-touch-icon PNG, ảnh khởi động cho một số kích thước iPhone/iPad phổ biến, màu giao diện hệ thống, vùng safe-area và cache offline. Các kích thước khác dùng giao diện khởi động mặc định của iOS. Ảnh khởi động chỉ được iOS dùng khi thiết bị và trình duyệt hỗ trợ, không phải cơ chế đảm bảo hiệu năng.
+Nếu clipboard bị từ chối hoặc không được hỗ trợ, trang hiện ô XML chỉ đọc và nút chọn toàn bộ. Dùng lệnh Sao chép của iOS, rồi nhấn **Đã sao chép — mở phím tắt**. Trong Trợ giúp có nút **Chỉ sao chép XML** nếu bạn muốn chạy phím tắt thủ công.
 
-Mở online ít nhất một lần để tải cache. Khi thấy **Sẵn sàng dùng offline**, bạn có thể mở lại công cụ và tạo tệp không cần mạng. iOS có thể xóa dữ liệu cache khi thiếu dung lượng hoặc khi bạn xóa dữ liệu website; khi đó mở lại online. Website đích của WebClip vẫn cần mạng nếu chính nó không hỗ trợ offline.
+## Phím tắt do bạn tự xây dựng
 
-## Tạo và lưu tệp
+Tên phải chính xác là **Lưu cấu hình**. Nếu đổi tên, sửa `SHORTCUT_NAME` trong `modules/config.js` rồi tăng phiên bản cache trong `sw.js`.
 
-1. Nhập tên hiển thị và URL website hoặc URL scheme của ứng dụng, ví dụ `https://example.com`, `zalo://`, `shortcuts://run-shortcut?name=Ten%20phim%20tat`, `tel:+84900000000`, `sms:+84900000000`, `mailto:hello@example.com`.
-2. Điền mô tả nếu muốn. **Tác giả trong hồ sơ luôn là Sentechtipsvn**, không có ô chỉnh tác giả. Hai hàng chữ cũ được thay bằng đường phân cách. Liên kết tác giả ở cuối trang dẫn đến https://github.com/Sentechtipsvn, có vệt sóng xanh dương nhẹ chạy từ trái sang phải. Hiệu ứng dừng khi ra khỏi màn hình, tab bị ẩn hoặc người dùng bật Giảm chuyển động.
-3. Chọn ảnh PNG/JPG/WebP tối đa 10 MB, 24 megapixel. HEIC không được nhận trực tiếp: xuất/chuyển ảnh thành JPG hoặc PNG trước. Nếu không chọn ảnh, dùng icon mặc định.
-4. Ảnh được cắt vuông từ tâm, thu nhỏ thành PNG 180 × 180 và nhúng vào hồ sơ. Phần trong suốt được đặt trên nền `#5c5c5c`. iOS tự bo góc icon.
-5. Nhấn **Tạo & lưu vào Tệp**. Nếu trình duyệt cho chia sẻ tệp `.mobileconfig`, chọn **Lưu vào Tệp** và chọn thư mục.
-6. Nếu không có hỗ trợ chia sẻ định dạng này, trang yêu cầu tải tệp xuống. Có thể chủ động nhấn **Tải xuống .mobileconfig**. Kiểm tra mục Tải về của Safari/Tệp. Một số phiên bản iOS mở bản xem trước hoặc chuyển sang luồng nhận hồ sơ thay vì tải thông thường; thử lại trong Safari khi cần.
+Gợi ý cấu trúc:
 
-Website không thể tự chọn thư mục, tự xác nhận lưu hay tự cài hồ sơ. Bảng chia sẻ đóng không có nghĩa người dùng đã lưu: bạn có thể đã chọn ứng dụng khác hoặc hủy thao tác.
+1. Lấy **Đầu vào phím tắt** dưới dạng **Văn bản**. Không yêu cầu đầu vào là Tệp và không giải mã JSON/base64.
+2. Giữ văn bản XML trong một biến riêng, ví dụ `NoiDungCauHinh`.
+3. Kiểm tra đầu vào có `<?xml` và `<plist version="1.0">`; nếu thiếu thì dừng và thông báo. Đây là kiểm tra sơ bộ, không thay cho phân tích XML.
+4. **Hỏi đầu vào**: tên tệp, ví dụ `Sentechtipsvn.mobileconfig`.
+5. Chuẩn hóa tên: không dùng `/`, không để tên rỗng; nếu chưa có `.mobileconfig` thì thêm một lần.
+6. Chuyển **văn bản XML gốc** thành tệp và **Đặt tên** bằng tên đã nhập, có phần mở rộng `.mobileconfig`. Không lưu nhầm kết quả của bước hỏi tên làm nội dung tệp.
+7. **Chọn từ menu** các thư mục bạn đã cấu hình.
+8. **Lưu tệp** vào thư mục của nhánh đã chọn. Nếu đã chọn thư mục cố định, tắt **Hỏi nơi lưu** trong hành động Lưu tệp.
+9. Tự xử lý khi trùng tên: hỏi ghi đè, thêm số thứ tự hoặc thêm thời gian tùy cách bạn muốn.
 
-## Cài hồ sơ và mở WebClip
+Tệp cuối cùng phải có nội dung XML UTF-8 và đuôi `.mobileconfig`, không phải `.mobileconfig.txt`. Tên hành động/tùy chọn có thể khác theo ngôn ngữ và phiên bản iOS. Đổi tên tệp không thay đổi `Label`/`PayloadDisplayName` trong XML: đó là tên hiển thị đã nhập trên website.
 
-Lưu tệp và cài hồ sơ là hai thao tác khác nhau. Tệp trong ứng dụng Tệp có thể chỉ được xem trước, tùy phiên bản iOS. Apple hỗ trợ nhận hồ sơ từ website hoặc thư điện tử và cài qua Cài đặt; bạn cũng có thể dùng Apple Configurator trên máy tính. Nếu cần cài từ website, đưa tệp `.mobileconfig` đã tạo lên một URL HTTPS rồi mở URL đó bằng Safari. **Trang này không tự tải hồ sơ của bạn lên GitHub.**
+Tài liệu Apple về đầu vào clipboard: https://support.apple.com/guide/shortcuts/apd624386f42/ios
 
-Sau khi iOS nhận hồ sơ, mở **Cài đặt → Hồ sơ đã tải về**, hoặc **Cài đặt chung → VPN & Quản lý thiết bị**, chọn hồ sơ và làm theo hướng dẫn. Một số thiết bị do tổ chức quản lý có thể hạn chế cài hồ sơ.
+## Đưa lên GitHub Pages / cập nhật bản cũ
 
-Hồ sơ tạo ra là XML plist **chưa ký số**, nên iOS có thể hiện “Chưa được xác minh”. `PayloadOrganization = Sentechtipsvn` là nhãn tác giả; muốn hồ sơ được xác minh cần chứng chỉ và quy trình ký riêng.
+1. Giải nén ZIP và đưa **nội dung bên trong** thư mục `sentechtipsvn-webclip` lên thư mục gốc repository.
+2. Giữ các tệp gốc cùng cấp: `index.html`, `styles.css`, `app.js`, `sw.js`, `manifest.webmanifest`, `.nojekyll`.
+3. Đưa lên cả thư mục mới **`modules/`** và ảnh mới **`icons/default-webclip.png`**. Thiếu một module sẽ khiến nút xuất không hoạt động.
+4. Trong **Settings → Pages**, chọn **Deploy from a branch → main → /(root) → Save**.
+5. Mở URL HTTPS bằng Safari, thêm vào Màn hình chính nếu chưa có.
+6. Với bản cũ: đóng hẳn các cửa sổ/WebClip, mở lại online để nhận service worker `v2.0.0`. Bản cập nhật tải xong có thể cần đóng rồi mở lại lần nữa.
 
-Mỗi lần xuất tạo UUID và định danh hồ sơ mới. Nếu cài nhiều lần, có thể có nhiều WebClip/hồ sơ; gỡ bản cũ trước khi cài bản thay thế nếu không muốn trùng.
+Không cần npm, framework, API hoặc bước build. Đường dẫn tương đối hỗ trợ cả URL domain gốc lẫn `/ten-repository/`. Đây là ES modules, cần phục vụ qua HTTP/HTTPS; không chạy trực tiếp bằng `file://`.
 
-Tài liệu Apple: https://support.apple.com/en-ca/102400
-
-## URL scheme và app đích
-
-Nhận URL scheme và xuất vào hồ sơ không có nghĩa website có thể xác minh app đích đã cài hay scheme đang được app hỗ trợ. Với custom scheme, `FullScreen` được tắt để không ép luồng mở app vào một web app toàn màn hình; iOS có thể đi qua Safari hoặc hỏi xác nhận. Cần thử WebClip đã cài trên iPhone thật. Nếu scheme không mở từ WebClip trên phiên bản iOS của bạn, có thể dùng Phím tắt với hành động Mở URL rồi thêm Phím tắt vào Màn hình chính.
-
-Scheme `zalo://` được chấp nhận để xuất; việc mở Zalo thực tế phụ thuộc app Zalo và iOS. Đây không phải cam kết mọi scheme sẽ mở được. Không tự thêm `TargetApplicationBundleIdentifier`, vì không có bundle ID được cung cấp và khóa đó không phải cách buộc một WebClip cài thủ công mở app bất kỳ.
-
-Tài liệu Apple về custom URL: https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app
-
-## Thành phần cấu hình
-
-| Khóa | Giá trị |
-| --- | --- |
-| `PayloadType` ngoài cùng | `Configuration` |
-| `PayloadType` WebClip | `com.apple.webClip.managed` |
-| `PayloadVersion` | Số nguyên `1` |
-| `PayloadOrganization` | `Sentechtipsvn` ở cả hồ sơ và payload |
-| `Label` | Tên đã nhập |
-| `URL` | URL đã kiểm tra và chuẩn hóa |
-| `Icon` | Dữ liệu PNG nhúng bằng base64 |
-| `FullScreen` | `true` cho HTTP/HTTPS, `false` cho scheme khác |
-| `IgnoreManifestScope` | `true` cho HTTP/HTTPS, `false` cho scheme khác |
-| `Precomposed` | `true` |
-| `IsRemovable` | `true` |
-| `PayloadRemovalDisallowed` | `false` |
-
-URL nhận HTTP/HTTPS và custom scheme theo cú pháp `scheme:...` (kể cả dạng không có đường dẫn như `App-Prefs:`). Không bắt buộc hostname cho scheme, nên `zalo://` được chấp nhận. URL website được chuẩn hóa bằng URL API; custom scheme được giữ nguyên sau khi bỏ khoảng trắng đầu/cuối, không tự viết lại chữ hoa/thường, dấu gạch chéo hoặc tham số. Không nhận URL có khoảng trắng, thông tin đăng nhập, escape `%` sai định dạng hoặc các scheme nội dung/script/tệp cục bộ `javascript:`, `data:`, `vbscript:`, `file:`, `blob:`, `about:`. Khoảng trắng trong tham số phải viết thành `%20`. Ký tự XML trong tên, mô tả và URL được escape; ký tự điều khiển không hợp lệ bị từ chối. Tên tệp được chuyển thành dạng an toàn.
-
-Tài liệu payload: https://developer.apple.com/documentation/devicemanagement/webclip
-
-## Hiệu năng và giới hạn
-
-Nền và tất cả bề mặt/nút dùng `#5c5c5c`. Chữ và bóng dùng sắc sáng/tối để đọc được và tạo hiệu ứng Neumorphism: sáng phía trên trái, bóng tối phía dưới phải. Các ô nhập có bo tròn dạng viên thuốc; ô mô tả nhiều dòng bo tròn phù hợp chiều cao.
-
-Không có font tải ngoài, CDN, framework, animation nền, blur/backdrop-filter hoặc xử lý trên mỗi sự kiện cuộn. Chỉ chữ tác giả ở footer có hiệu ứng gradient nhỏ; không animate bóng của các nút. Chuyển động nút chỉ ngắn và tắt khi người dùng bật Giảm chuyển động. Input dùng cỡ 16 px để giảm việc Safari tự zoom. Không chặn zoom trợ năng và không khóa cuộn khi bàn phím xuất hiện.
-
-Không thể đảm bảo “không giật 100% như app native” trên mọi thiết bị. Hiệu năng phụ thuộc iOS/WebKit, bộ nhớ, ảnh nhập và website đích. `FullScreen` không biến website đích thành app native và không thể tăng tốc trang bên ngoài.
-
-Tên, URL, mô tả và ảnh được xử lý trong bộ nhớ thiết bị, không gửi đến máy chủ của công cụ. Không có analytics, không lưu lịch sử form. Khi đóng/tải lại trang, biểu mẫu bắt đầu lại. Service worker chỉ lưu mã giao diện và icon ứng dụng. Khi triển khai GitHub Pages, các tài nguyên website vẫn được tải từ GitHub như một trang web thông thường.
-
-## Cập nhật mã nguồn
-
-Sau khi sửa HTML/CSS/JS/manifest/icon, tăng `VERSION` trong `sw.js`, ví dụ từ `v1.1.0` thành `v1.1.1`, rồi đưa mã lên GitHub. Service worker mới chờ các cửa sổ/phiên ứng dụng cũ đóng để không trộn tài nguyên hai phiên bản. Đóng hẳn app, mở lại online; có thể cần đóng và mở lại lần nữa sau khi bản cập nhật đã tải xong.
-
-Ảnh khởi động không nằm trong cache offline để giữ bộ nhớ cache nhẹ. Cache được phân biệt theo đường dẫn repository, không xóa cache của ứng dụng khác.
-
-## Chạy thử trên máy tính
-
-Tại thư mục chứa `index.html`:
+Chạy thử ở thư mục chứa `index.html`:
 
 ```sh
 python3 -m http.server 8080
 ```
 
-Mở `http://localhost:8080/`. Không dùng `file://` để kiểm tra service worker. Khi thử trực tiếp trên iPhone, dùng URL HTTPS; địa chỉ HTTP trong mạng LAN thường không bật service worker.
+Mở `http://localhost:8080/` trên máy tính. Trên iPhone cần URL HTTPS để có clipboard/service worker. HTTP trong mạng LAN thường không có các quyền này.
 
-Kiểm tra thực tế: tên tiếng Việt/emoji, URL có `&`, ảnh ngang/dọc, hủy chia sẻ, tải tệp, mở từ Màn hình chính, xoay màn hình, nhập khi bàn phím mở và mở lại sau khi tắt mạng. Cài hồ sơ trên thiết bị iOS thật để xác nhận hành vi cuối cùng.
+## Cấu trúc để tái sử dụng
 
-## Các tệp
+| Tệp | Trách nhiệm |
+| --- | --- |
+| `index.html` | Form, trạng thái, trợ giúp, metadata iOS |
+| `styles.css` | Màu, Neumorphism, safe-area, responsive, sóng tác giả |
+| `app.js` | Nối giao diện với các module, xử lý trạng thái |
+| `modules/config.js` | Tác giả, tên phím tắt, icon mặc định, phiên bản app |
+| `modules/validation.js` | Kiểm tra tên, mô tả và URL/scheme |
+| `modules/profile.js` | Ghi plist, bao hồ sơ và xây payload WebClip |
+| `modules/icons.js` | Đọc ảnh, cắt giữa, tạo PNG 180 × 180 |
+| `modules/shortcuts.js` | Sao chép văn bản và mở phím tắt |
+| `modules/platform.js` | Offline, sóng tác giả, WebMCP tùy chọn |
+| `sw.js` | Danh sách tài nguyên cache, phạm vi repository, cập nhật |
 
-- `index.html`: giao diện, metadata iOS và liên kết tài nguyên.
-- `styles.css`: Neumorphism, responsive, safe-area và trợ năng.
-- `app.js`: xác thực form, icon PNG, xuất plist, chia sẻ/tải tệp.
-- `manifest.webmanifest`: khai báo ứng dụng Màn hình chính.
-- `sw.js`: cache offline và cập nhật theo phiên bản.
-- `icons/`: icon ứng dụng PNG, gồm icon maskable.
-- `launch/`: ảnh khởi động iOS cho các màn hình phổ biến.
-- `.nojekyll`: phục vụ tệp tĩnh trên GitHub Pages.
+Để thêm DNS/Wi-Fi hoặc nhiều WebClip: tạo builder cho payload đó, dùng `createConfigurationProfile({displayName, description, payloads})` trong `modules/profile.js`, rồi gửi XML kết quả bằng `copyProfileText(xml)`. `PlistData` dành cho giá trị `<data>` nhị phân base64; serializer có hỗ trợ dictionary, array, string, boolean và số. Chưa có form hoặc builder DNS/Wi-Fi trong bản này; cần viết và kiểm tra khóa payload theo tài liệu Apple. Thêm module vào danh sách `ASSETS` của `sw.js` để hoạt động offline.
 
-## Kiểm tra đã thực hiện
+Tác giả hồ sơ luôn được đặt là **Sentechtipsvn**, độc lập với tên tệp bạn chọn trong Shortcuts.
 
-Bản v1.1.0 đã kiểm tra xuất HTTP/HTTPS, `zalo://`, custom scheme, Shortcuts, tel, sms, mailto; kiểm tra tham số deep link giữ nguyên và chế độ FullScreen tương ứng. Đã kiểm tra cú pháp JavaScript; chạy luồng nhập liệu, xử lý PNG và chia sẻ thành công/hủy/lỗi bằng môi trường mô phỏng DOM có canvas; phân tích tệp xuất bằng `plistlib`; xác nhận UUID, tiếng Việt/emoji và icon PNG nhúng; kiểm tra danh sách tài nguyên HTML/manifest và logic cache/service worker trong môi trường mô phỏng. WebMCP là tích hợp tùy chọn: đã kiểm tra handler bằng registry mô phỏng, chưa kiểm tra trong trình duyệt hỗ trợ WebMCP thật.
+## Thay ảnh
 
-Chưa có kiểm thử giao diện trong Safari/iPhone thật hoặc cài hồ sơ trên thiết bị. Các bài kiểm tra trên không xác nhận tốc độ khung hình, bàn phím iOS hoặc việc lưu/cài hồ sơ trên một phiên bản iOS cụ thể.
+| Vị trí | Tệp / mã |
+| --- | --- |
+| Icon mặc định của form và hồ sơ | `icons/default-webclip.png` — nên dùng PNG vuông 180 × 180 |
+| Icon công cụ trên Màn hình chính iOS | `icons/apple-touch-icon.png` — 180 × 180 |
+| Icon trong manifest | `icons/icon-192.png`, `icons/icon-512.png` |
+| Icon maskable | `icons/icon-maskable-512.png` — 512 × 512, giữ hình chính trong vùng an toàn |
+| Logo nhỏ ở tiêu đề | SVG `.brand-mark` trong `index.html` |
+| Ảnh khởi động iOS | `launch/`, theo tên kích thước/hướng |
 
-Tác giả: **Sentechtipsvn**.
+Icon do người dùng chọn được xử lý trong bộ nhớ và đưa vào XML, không ghi đè ảnh mặc định. Không lưu lịch sử form hay icon đã chọn.
+
+## iOS, offline và giới hạn
+
+Có manifest standalone, thẻ meta iOS, apple-touch-icon, ảnh khởi động cho một số màn hình phổ biến, safe-area và font hệ thống. Trạng thái offline và hướng dẫn nằm trong Trợ giúp để form gọn. Sau lần mở online thành công, mã/module/icon được cache để tạo XML offline. iOS có thể xóa cache khi thiếu dung lượng; cần mở lại online nếu xảy ra.
+
+URL nhận HTTP/HTTPS và scheme như `zalo://`, `shortcuts://`, `tel:`, `sms:`, `mailto:`, kể cả dạng scheme không có đường dẫn. URL website được chuẩn hóa; scheme khác được giữ nguyên sau khi bỏ khoảng trắng đầu/cuối. Không nhận khoảng trắng bên trong (dùng `%20`), escape `%` sai, thông tin đăng nhập, ký tự XML không hợp lệ hay các scheme `javascript:`, `data:`, `vbscript:`, `file:`, `blob:`, `about:`.
+
+WebClip website có `FullScreen = true`; scheme khác có `FullScreen = false` để không ép luồng app vào một web app toàn màn hình. App đích và iOS vẫn quyết định scheme có mở được hay không. Không thêm `TargetApplicationBundleIdentifier` tùy tiện.
+
+Ảnh nhận PNG/JPG/WebP tối đa 10 MB, 24 megapixel; cắt giữa, chuyển PNG 180 × 180, nền trong suốt được đặt trên `#5c5c5c`. HEIC cần chuyển sang JPG/PNG trước.
+
+Hồ sơ chưa ký số, có thể hiện “Chưa được xác minh”. `PayloadOrganization` là nhãn tác giả, không phải chữ ký xác thực. Mỗi lần xuất tạo định danh mới; cài nhiều bản có thể tạo nhiều hồ sơ/icon. Việc lưu tệp và cài hồ sơ là hai thao tác riêng.
+
+Không gửi XML/icon/form lên máy chủ, không analytics, không API. Trang vẫn tải các tài nguyên website từ GitHub Pages. Clipboard là cơ chế chuyển dữ liệu sang Shortcuts trên thiết bị. Sau khi chuyển app, không chép nội dung khác trước khi phím tắt đọc đầu vào.
+
+Không thể đảm bảo tuyệt đối không giật như native trên mọi máy. Hiệu ứng sóng chỉ chạy trên chữ tác giả khi trong màn hình, dừng lúc ẩn và khi bật Giảm chuyển động.
+
+## Kiểm tra
+
+Đã kiểm tra tự động serializer plist, tiếng Việt/emoji, scheme/website, icon PNG và giao thức clipboard văn bản thuần; kiểm tra trạng thái sao chép thành công/thất bại, thứ tự sao chép trước khi mở Shortcuts, form lỗi và nguồn cache trong môi trường mô phỏng.
+
+Chưa kiểm thử luồng chuyển app, bảng quyền clipboard, lưu iCloud hoặc cài hồ sơ trên iPhone thật. Cần thử với phím tắt của bạn để xác nhận các bước cuối.
+
+Khi sửa tài nguyên, tăng `VERSION` trong `sw.js`; cập nhật `APP_VERSION` trong `modules/config.js` nếu đổi phiên bản. Không dùng service worker cũ cho mã đã thay đổi.

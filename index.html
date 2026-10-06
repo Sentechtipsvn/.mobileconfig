@@ -9,7 +9,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content=".mobileconfig">
   <meta name="application-name" content=".mobileconfig">
-  <meta name="description" content="Tạo WebClip iOS và lưu tệp mobileconfig ngay trên thiết bị. Tác giả Sentechtipsvn.">
+  <meta name="description" content="Tạo XML mobileconfig cho WebClip, Wi-Fi, DNS, VPN và chuyển sang Shortcuts để lưu. Tác giả Sentechtipsvn.">
   <meta name="author" content="Sentechtipsvn">
   <title>.mobileconfig · Sentechtipsvn</title>
   <link rel="manifest" href="./manifest.webmanifest">
@@ -41,56 +41,48 @@
       <div class="brand-copy"><p class="eyebrow">SENTECHTIPSVN</p><h1>.mobileconfig</h1></div>
       <span class="version">iOS</span>
     </header>
+    <nav class="type-tabs" role="tablist" aria-label="Loại cấu hình">
+      <button id="tab-webclip" type="button" role="tab" aria-selected="true" aria-controls="clip-form" data-type="webclip">WebClip</button>
+      <button id="tab-wifi" type="button" role="tab" aria-selected="false" aria-controls="clip-form" tabindex="-1" data-type="wifi">Wi-Fi</button>
+      <button id="tab-dns" type="button" role="tab" aria-selected="false" aria-controls="clip-form" tabindex="-1" data-type="dns">DNS</button>
+      <button id="tab-vpn" type="button" role="tab" aria-selected="false" aria-controls="clip-form" tabindex="-1" data-type="vpn">VPN</button>
+      <button id="tab-account" type="button" role="tab" aria-selected="false" aria-controls="clip-form" tabindex="-1" data-type="account">Tài khoản</button>
+      <button id="tab-certificate" type="button" role="tab" aria-selected="false" aria-controls="clip-form" tabindex="-1" data-type="certificate">Chứng chỉ</button>
+      <button id="tab-management" type="button" role="tab" aria-selected="false" aria-controls="clip-form" tabindex="-1" data-type="management">Quản lý thiết bị</button>
+    </nav>
     <hr class="divider" aria-hidden="true">
-    <form id="clip-form" novalidate aria-label="Tạo cấu hình WebClip">
-      <div class="icon-row">
-        <button class="icon-button raised" id="pick-icon" type="button" aria-label="Chọn ảnh icon">
-          <img id="icon-preview" src="./icons/default-webclip.png" width="68" height="68" alt="Icon WebClip">
-          <span class="icon-plus" aria-hidden="true">+</span>
-        </button>
+    <form id="clip-form" role="tabpanel" aria-labelledby="tab-webclip" novalidate>
+      <div class="icon-row" id="icon-row">
+        <button class="icon-button raised" id="pick-icon" type="button" aria-label="Chọn ảnh icon"><img id="icon-preview" src="./icons/default-webclip.png" width="68" height="68" alt="Icon WebClip"><span class="icon-plus" aria-hidden="true">+</span></button>
         <div class="icon-copy"><p id="preview-name">WebClip của bạn</p><button id="choose-icon" class="text-button" type="button">Chọn icon</button></div>
         <input class="sr-only" id="icon-input" type="file" accept="image/png,image/jpeg,image/webp" aria-label="Ảnh icon">
       </div>
-      <div class="field">
-        <label for="display-name">Tên hiển thị</label>
-        <input id="display-name" name="displayName" type="text" placeholder="Tên trên Màn hình chính" maxlength="60" required autocomplete="off" enterkeyhint="next" aria-describedby="name-error">
-        <p id="name-error" class="field-error" hidden></p>
-      </div>
-      <div class="field">
-        <label for="clip-url">URL</label>
-        <input id="clip-url" name="url" type="text" inputmode="url" placeholder="Website hoặc URL scheme" maxlength="4096" required autocapitalize="none" autocomplete="off" spellcheck="false" enterkeyhint="next" aria-describedby="url-error">
-        <p id="url-error" class="field-error" hidden></p>
-      </div>
-      <div class="field">
-        <label for="description">Mô tả <span class="optional">Tùy chọn</span></label>
-        <textarea id="description" name="description" rows="2" maxlength="1000" placeholder="Mô tả cấu hình" aria-describedby="description-error"></textarea>
-        <p id="description-error" class="field-error" hidden></p>
-      </div>
+      <p class="type-note" id="type-note"></p>
+      <div class="field"><label for="display-name" id="name-label">Tên hiển thị</label><input id="display-name" type="text" placeholder="Tên cấu hình" maxlength="60" required autocomplete="off" enterkeyhint="next" aria-describedby="name-error"><p id="name-error" class="field-error" hidden></p></div>
+      <div id="type-fields"></div>
+      <div class="field"><label for="description">Mô tả <span class="optional">Tùy chọn</span></label><textarea id="description" rows="2" maxlength="1000" placeholder="Mô tả cấu hình" aria-describedby="description-error"></textarea><p id="description-error" class="field-error" hidden></p></div>
       <hr class="divider action-divider" aria-hidden="true">
-      <button class="primary raised" id="export-button" type="submit" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5"/></svg><span id="export-label">Đang chuẩn bị icon…</span></button>
+      <button class="primary raised" id="export-button" type="submit" disabled><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5"/></svg><span id="export-label">Đang chuẩn bị…</span></button>
+      <button id="paste-url-button" class="secondary raised" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 15 6-6M8 17l-1 1a4 4 0 0 1-6-6l4-4a4 4 0 0 1 6 0m2-1 1-1a4 4 0 0 1 6 6l-4 4a4 4 0 0 1-6 0"/></svg>Dán URL / mở hồ sơ</button>
       <p id="status" class="status" role="status" aria-live="polite" hidden></p>
-      <a id="shortcut-retry" class="recovery-link" href="#" hidden>Mở “Lưu cấu hình”</a>
+      <a id="shortcut-retry" class="recovery-link" href="#" hidden>Gửi lại sang “Lưu cấu hình”</a>
     </form>
-    <section id="manual-panel" class="manual-panel" aria-labelledby="manual-title" hidden>
-      <h2 id="manual-title">Sao chép XML thủ công</h2>
-      <p>Chọn toàn bộ văn bản, sao chép rồi mở phím tắt. Nội dung không phải JSON.</p>
-      <textarea id="manual-xml" rows="5" readonly spellcheck="false" aria-label="Toàn bộ XML cấu hình"></textarea>
-      <button id="select-xml" class="text-button" type="button">Chọn toàn bộ XML</button>
-      <a id="manual-shortcut" class="recovery-link" href="#">Đã sao chép — mở phím tắt</a>
-    </section>
-    <details class="help" id="help">
-      <summary>Trợ giúp</summary>
-      <div class="help-content">
-        <p>Xuất XML văn bản thuần vào clipboard, rồi mở phím tắt <strong>“Lưu cấu hình”</strong>. Phím tắt tự hỏi tên, tạo tệp <code>.mobileconfig</code> và chọn thư mục lưu.</p>
-        <p>Website có thể hỏi quyền clipboard hoặc xác nhận mở Shortcuts. Nút xuất sẽ thay nội dung clipboard hiện tại.</p>
-        <p>URL nhận website và scheme như <code>zalo://</code>, <code>shortcuts://</code>, <code>tel:</code>. App đích cần hỗ trợ scheme đó.</p>
-        <p>Icon: PNG, JPG hoặc WebP, tối đa 10 MB / 24 megapixel. Ảnh được cắt giữa và xuất PNG 180 × 180.</p>
-        <button id="copy-xml" class="text-button" type="button" disabled>Chỉ sao chép XML</button>
-        <p id="offline-status">Đang chuẩn bị chế độ offline…</p>
-      </div>
-    </details>
+    <details class="help" id="help"><summary>Trợ giúp</summary><div class="help-content">
+      <p>Nút xuất gửi toàn bộ XML vào phím tắt <strong>“Lưu cấu hình”</strong> bằng <code>input=text</code>. Phím tắt nhận Văn bản, hỏi tên, tạo tệp và lưu theo menu của bạn.</p>
+      <p>URL scheme của WebClip được xuất với chế độ toàn màn hình. iOS vẫn có thể hỏi xác nhận mở app; không thể buộc bỏ mọi bước Safari bằng hồ sơ cài thủ công.</p>
+      <p>Icon và chứng chỉ làm liên kết dài hơn. Nếu Shortcuts không nhận được XML, thử icon đơn giản hơn hoặc tải tệp trực tiếp bằng nút dưới đây.</p>
+      <p>Wi-Fi/VPN có thể chứa mật khẩu trong XML. Mail sẽ hỏi mật khẩu khi cài. Các mẫu chưa ký số; tác giả là nhãn thông tin.</p>
+      <button id="download-profile" class="text-button" type="button">Tải tệp .mobileconfig dự phòng</button><p id="offline-status">Đang chuẩn bị chế độ offline…</p>
+    </div></details>
     <footer>Được tạo bởi <a class="author-link" id="author-link" href="https://github.com/Sentechtipsvn" target="_blank" rel="noopener noreferrer">Sentechtipsvn</a></footer>
   </main>
+  <dialog id="url-dialog" aria-labelledby="url-dialog-title">
+    <div class="dialog-heading"><h2 id="url-dialog-title">Dán URL</h2><button id="close-url-dialog" type="button" class="text-button" aria-label="Đóng popup">Đóng</button></div>
+    <div class="field"><label for="url-purpose">Dùng URL để</label><select id="url-purpose"><option value="webclip">Điền vào WebClip</option><option value="profile">Mở tệp .mobileconfig</option></select></div>
+    <div class="field"><label for="pasted-url">URL</label><input id="pasted-url" type="text" inputmode="url" autocapitalize="none" autocomplete="off" spellcheck="false" placeholder="Dán URL tại đây" maxlength="4096" aria-describedby="paste-error" autofocus><p id="paste-error" class="field-error" hidden></p></div>
+    <p class="dialog-note" id="paste-note">URL được đưa vào trường URL của WebClip.</p>
+    <button id="apply-pasted-url" type="button" class="primary raised">Điền vào WebClip</button>
+  </dialog>
   <noscript><p class="noscript">Bật JavaScript để tạo cấu hình.</p></noscript>
 </body>
 </html>

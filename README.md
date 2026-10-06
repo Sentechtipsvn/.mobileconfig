@@ -1,4 +1,4 @@
-# WebClip Studio · Sentechtipsvn
+# .mobileconfig · Sentechtipsvn
 
 Bộ mã nguồn tĩnh để tạo tệp `.mobileconfig` có một WebClip iOS. Không cần npm, API, máy chủ ứng dụng hoặc bước build.
 
@@ -10,7 +10,7 @@ Bộ mã nguồn tĩnh để tạo tệp `.mobileconfig` có một WebClip iOS. 
 4. Chọn **Deploy from a branch**, nhánh **main**, thư mục **/(root)**, rồi **Save**.
 5. Chờ GitHub triển khai và mở URL được hiển thị trong Pages. Với repository dự án, URL thường có dạng `https://TEN-TAI-KHOAN.github.io/TEN-REPOSITORY/`.
 
-Tất cả đường dẫn tài nguyên và scope đều tương đối. Bộ mã dùng được cả domain gốc, tên miền riêng và đường dẫn repository. Nếu đổi chỗ các tệp hoặc tên thư mục, cần sửa liên kết tương ứng.
+Tất cả đường dẫn tài nguyên và scope đều tương đối. Bộ mã dùng được cả domain gốc, tên miền riêng và đường dẫn repository. Nếu đổi chỗ các tệp hoặc tên thư mục, cần sửa liên kết tương ứng. Bản này là **v1.1.0**: khi cập nhật, ghi đè các tệp `index.html`, `styles.css`, `app.js`, `manifest.webmanifest`, `sw.js` và `README.md`; giữ nguyên các thư mục ảnh.
 
 Hướng dẫn chính thức: https://docs.github.com/en/pages/getting-started-with-github-pages/configuring-a-publishing-source-for-your-github-pages-site
 
@@ -24,8 +24,8 @@ Mở online ít nhất một lần để tải cache. Khi thấy **Sẵn sàng d
 
 ## Tạo và lưu tệp
 
-1. Nhập tên hiển thị và URL đầy đủ bắt đầu bằng `https://` hoặc `http://`.
-2. Điền mô tả nếu muốn. **Tác giả luôn là Sentechtipsvn**, không có ô chỉnh tác giả.
+1. Nhập tên hiển thị và URL website hoặc URL scheme của ứng dụng, ví dụ `https://example.com`, `zalo://`, `shortcuts://run-shortcut?name=Ten%20phim%20tat`, `tel:+84900000000`, `sms:+84900000000`, `mailto:hello@example.com`.
+2. Điền mô tả nếu muốn. **Tác giả trong hồ sơ luôn là Sentechtipsvn**, không có ô chỉnh tác giả. Hai hàng chữ cũ được thay bằng đường phân cách. Liên kết tác giả ở cuối trang dẫn đến https://github.com/Sentechtipsvn, có vệt sóng xanh dương nhẹ chạy từ trái sang phải. Hiệu ứng dừng khi ra khỏi màn hình, tab bị ẩn hoặc người dùng bật Giảm chuyển động.
 3. Chọn ảnh PNG/JPG/WebP tối đa 10 MB, 24 megapixel. HEIC không được nhận trực tiếp: xuất/chuyển ảnh thành JPG hoặc PNG trước. Nếu không chọn ảnh, dùng icon mặc định.
 4. Ảnh được cắt vuông từ tâm, thu nhỏ thành PNG 180 × 180 và nhúng vào hồ sơ. Phần trong suốt được đặt trên nền `#5c5c5c`. iOS tự bo góc icon.
 5. Nhấn **Tạo & lưu vào Tệp**. Nếu trình duyệt cho chia sẻ tệp `.mobileconfig`, chọn **Lưu vào Tệp** và chọn thư mục.
@@ -45,6 +45,14 @@ Mỗi lần xuất tạo UUID và định danh hồ sơ mới. Nếu cài nhiề
 
 Tài liệu Apple: https://support.apple.com/en-ca/102400
 
+## URL scheme và app đích
+
+Nhận URL scheme và xuất vào hồ sơ không có nghĩa website có thể xác minh app đích đã cài hay scheme đang được app hỗ trợ. Với custom scheme, `FullScreen` được tắt để không ép luồng mở app vào một web app toàn màn hình; iOS có thể đi qua Safari hoặc hỏi xác nhận. Cần thử WebClip đã cài trên iPhone thật. Nếu scheme không mở từ WebClip trên phiên bản iOS của bạn, có thể dùng Phím tắt với hành động Mở URL rồi thêm Phím tắt vào Màn hình chính.
+
+Scheme `zalo://` được chấp nhận để xuất; việc mở Zalo thực tế phụ thuộc app Zalo và iOS. Đây không phải cam kết mọi scheme sẽ mở được. Không tự thêm `TargetApplicationBundleIdentifier`, vì không có bundle ID được cung cấp và khóa đó không phải cách buộc một WebClip cài thủ công mở app bất kỳ.
+
+Tài liệu Apple về custom URL: https://developer.apple.com/documentation/xcode/defining-a-custom-url-scheme-for-your-app
+
 ## Thành phần cấu hình
 
 | Khóa | Giá trị |
@@ -56,13 +64,13 @@ Tài liệu Apple: https://support.apple.com/en-ca/102400
 | `Label` | Tên đã nhập |
 | `URL` | URL đã kiểm tra và chuẩn hóa |
 | `Icon` | Dữ liệu PNG nhúng bằng base64 |
-| `FullScreen` | `true` |
-| `IgnoreManifestScope` | `true` |
+| `FullScreen` | `true` cho HTTP/HTTPS, `false` cho scheme khác |
+| `IgnoreManifestScope` | `true` cho HTTP/HTTPS, `false` cho scheme khác |
 | `Precomposed` | `true` |
 | `IsRemovable` | `true` |
 | `PayloadRemovalDisallowed` | `false` |
 
-URL chỉ nhận HTTP/HTTPS, không chứa thông tin đăng nhập. Ký tự XML trong tên, mô tả và URL được escape; ký tự điều khiển không hợp lệ bị từ chối. Tên tệp được chuyển thành dạng an toàn.
+URL nhận HTTP/HTTPS và custom scheme theo cú pháp `scheme:...` (kể cả dạng không có đường dẫn như `App-Prefs:`). Không bắt buộc hostname cho scheme, nên `zalo://` được chấp nhận. URL website được chuẩn hóa bằng URL API; custom scheme được giữ nguyên sau khi bỏ khoảng trắng đầu/cuối, không tự viết lại chữ hoa/thường, dấu gạch chéo hoặc tham số. Không nhận URL có khoảng trắng, thông tin đăng nhập, escape `%` sai định dạng hoặc các scheme nội dung/script/tệp cục bộ `javascript:`, `data:`, `vbscript:`, `file:`, `blob:`, `about:`. Khoảng trắng trong tham số phải viết thành `%20`. Ký tự XML trong tên, mô tả và URL được escape; ký tự điều khiển không hợp lệ bị từ chối. Tên tệp được chuyển thành dạng an toàn.
 
 Tài liệu payload: https://developer.apple.com/documentation/devicemanagement/webclip
 
@@ -70,7 +78,7 @@ Tài liệu payload: https://developer.apple.com/documentation/devicemanagement/
 
 Nền và tất cả bề mặt/nút dùng `#5c5c5c`. Chữ và bóng dùng sắc sáng/tối để đọc được và tạo hiệu ứng Neumorphism: sáng phía trên trái, bóng tối phía dưới phải. Các ô nhập có bo tròn dạng viên thuốc; ô mô tả nhiều dòng bo tròn phù hợp chiều cao.
 
-Không có font tải ngoài, CDN, framework, animation nền, blur/backdrop-filter hoặc xử lý trên mỗi sự kiện cuộn. Chuyển động nút chỉ ngắn và tắt khi người dùng bật Giảm chuyển động. Input dùng cỡ 16 px để giảm việc Safari tự zoom. Không chặn zoom trợ năng và không khóa cuộn khi bàn phím xuất hiện.
+Không có font tải ngoài, CDN, framework, animation nền, blur/backdrop-filter hoặc xử lý trên mỗi sự kiện cuộn. Chỉ chữ tác giả ở footer có hiệu ứng gradient nhỏ; không animate bóng của các nút. Chuyển động nút chỉ ngắn và tắt khi người dùng bật Giảm chuyển động. Input dùng cỡ 16 px để giảm việc Safari tự zoom. Không chặn zoom trợ năng và không khóa cuộn khi bàn phím xuất hiện.
 
 Không thể đảm bảo “không giật 100% như app native” trên mọi thiết bị. Hiệu năng phụ thuộc iOS/WebKit, bộ nhớ, ảnh nhập và website đích. `FullScreen` không biến website đích thành app native và không thể tăng tốc trang bên ngoài.
 
@@ -78,7 +86,7 @@ Tên, URL, mô tả và ảnh được xử lý trong bộ nhớ thiết bị, k
 
 ## Cập nhật mã nguồn
 
-Sau khi sửa HTML/CSS/JS/manifest/icon, tăng `VERSION` trong `sw.js`, ví dụ từ `v1.0.0` thành `v1.0.1`, rồi đưa mã lên GitHub. Service worker mới chờ các cửa sổ/phiên ứng dụng cũ đóng để không trộn tài nguyên hai phiên bản. Đóng hẳn app, mở lại online; có thể cần đóng và mở lại lần nữa sau khi bản cập nhật đã tải xong.
+Sau khi sửa HTML/CSS/JS/manifest/icon, tăng `VERSION` trong `sw.js`, ví dụ từ `v1.1.0` thành `v1.1.1`, rồi đưa mã lên GitHub. Service worker mới chờ các cửa sổ/phiên ứng dụng cũ đóng để không trộn tài nguyên hai phiên bản. Đóng hẳn app, mở lại online; có thể cần đóng và mở lại lần nữa sau khi bản cập nhật đã tải xong.
 
 Ảnh khởi động không nằm trong cache offline để giữ bộ nhớ cache nhẹ. Cache được phân biệt theo đường dẫn repository, không xóa cache của ứng dụng khác.
 
@@ -107,7 +115,7 @@ Kiểm tra thực tế: tên tiếng Việt/emoji, URL có `&`, ảnh ngang/dọ
 
 ## Kiểm tra đã thực hiện
 
-Đã kiểm tra cú pháp JavaScript; chạy luồng nhập liệu, xử lý PNG và chia sẻ thành công/hủy/lỗi bằng môi trường mô phỏng DOM có canvas; phân tích tệp xuất bằng `plistlib`; xác nhận UUID, tiếng Việt/emoji và icon PNG nhúng; kiểm tra danh sách tài nguyên HTML/manifest và logic cache/service worker trong môi trường mô phỏng. WebMCP là tích hợp tùy chọn: đã kiểm tra handler bằng registry mô phỏng, chưa kiểm tra trong trình duyệt hỗ trợ WebMCP thật.
+Bản v1.1.0 đã kiểm tra xuất HTTP/HTTPS, `zalo://`, custom scheme, Shortcuts, tel, sms, mailto; kiểm tra tham số deep link giữ nguyên và chế độ FullScreen tương ứng. Đã kiểm tra cú pháp JavaScript; chạy luồng nhập liệu, xử lý PNG và chia sẻ thành công/hủy/lỗi bằng môi trường mô phỏng DOM có canvas; phân tích tệp xuất bằng `plistlib`; xác nhận UUID, tiếng Việt/emoji và icon PNG nhúng; kiểm tra danh sách tài nguyên HTML/manifest và logic cache/service worker trong môi trường mô phỏng. WebMCP là tích hợp tùy chọn: đã kiểm tra handler bằng registry mô phỏng, chưa kiểm tra trong trình duyệt hỗ trợ WebMCP thật.
 
 Chưa có kiểm thử giao diện trong Safari/iPhone thật hoặc cài hồ sơ trên thiết bị. Các bài kiểm tra trên không xác nhận tốc độ khung hình, bàn phím iOS hoặc việc lưu/cài hồ sơ trên một phiên bản iOS cụ thể.
 

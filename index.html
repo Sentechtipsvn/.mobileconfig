@@ -7,11 +7,11 @@
   <meta name="color-scheme" content="dark">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-  <meta name="apple-mobile-web-app-title" content="WebClip Studio">
-  <meta name="application-name" content="WebClip Studio">
+  <meta name="apple-mobile-web-app-title" content=".mobileconfig">
+  <meta name="application-name" content=".mobileconfig">
   <meta name="description" content="Tạo WebClip iOS và lưu tệp mobileconfig ngay trên thiết bị. Tác giả Sentechtipsvn.">
   <meta name="author" content="Sentechtipsvn">
-  <title>WebClip Studio · Sentechtipsvn</title>
+  <title>.mobileconfig · Sentechtipsvn</title>
   <link rel="manifest" href="./manifest.webmanifest">
   <link rel="apple-touch-icon" sizes="180x180" href="./icons/apple-touch-icon.png">
   <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='16' fill='%235c5c5c'/%3E%3Cpath d='M20 16h18l8 8v24H20zM38 16v10h8M26 34h14M26 40h10' fill='none' stroke='%23fff' stroke-width='3' stroke-linejoin='round'/%3E%3C/svg%3E">
@@ -38,12 +38,13 @@
   <main class="app">
     <header class="header">
       <div class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M7 3h7l4 4v14H7zM14 3v5h4M10 12h5M10 16h5"/></svg></div>
-      <div><p class="eyebrow">SENTECHTIPSVN</p><h1>WebClip Studio</h1></div>
+      <div><p class="eyebrow">SENTECHTIPSVN</p><h1>.mobileconfig</h1></div>
       <span class="version">iOS</span>
     </header>
     <div class="workspace">
       <section class="editor" aria-labelledby="editor-title">
-        <div class="section-heading"><h2 id="editor-title">Tạo WebClip</h2><span class="meta">.mobileconfig</span></div>
+        <h2 id="editor-title" class="sr-only">Thông tin cấu hình</h2>
+        <hr class="form-divider heading-divider" aria-hidden="true">
         <form id="clip-form" novalidate>
           <div class="icon-picker">
             <button class="icon-button raised" id="pick-icon" type="button" aria-label="Chọn ảnh icon">
@@ -60,14 +61,15 @@
           </div>
           <div class="field">
             <label for="clip-url">URL <span aria-hidden="true">*</span></label>
-            <input id="clip-url" name="url" type="url" inputmode="url" placeholder="https://example.com" maxlength="4096" required autocapitalize="none" autocomplete="url" spellcheck="false" enterkeyhint="next" aria-describedby="url-error">
+            <input id="clip-url" name="url" type="text" inputmode="url" placeholder="https://example.com hoặc zalo://" maxlength="4096" required autocapitalize="none" autocomplete="off" spellcheck="false" enterkeyhint="next" aria-describedby="url-hint url-error">
+            <p class="field-hint" id="url-hint">URL website hoặc scheme mở ứng dụng, như zalo://, shortcuts://…</p>
             <p class="field-error" id="url-error" hidden></p>
           </div>
           <div class="field">
             <label for="description">Mô tả <span class="optional">Không bắt buộc</span></label>
             <textarea id="description" name="description" rows="3" maxlength="1000" placeholder="Mô tả ngắn cho hồ sơ cấu hình…"></textarea>
           </div>
-          <div class="author-row"><span>Tác giả</span><strong>Sentechtipsvn</strong><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M7 10V7a5 5 0 0 1 10 0v3M5 10h14v11H5zM12 14v3"/></svg></div>
+          <hr class="form-divider action-divider" aria-hidden="true">
           <button class="primary raised" id="save-button" type="submit"><svg aria-hidden="true" viewBox="0 0 24 24"><path d="M12 3v12m-5-5 5 5 5-5M5 16v5h14v-5"/></svg><span id="save-label">Tạo & lưu vào Tệp</span></button>
           <button class="secondary raised" id="download-button" type="button">Tải xuống .mobileconfig</button>
           <p class="status" id="status" role="status" aria-live="polite">Tệp được tạo trên thiết bị của bạn.</p>
@@ -76,12 +78,12 @@
       <aside class="preview" aria-labelledby="preview-title">
         <div class="section-heading"><h2 id="preview-title">Xem trước</h2><span class="meta">Màn hình chính</span></div>
         <div class="home-preview raised"><img id="home-icon" src="./icons/icon-192.png" alt="" width="92" height="92"><p id="home-name">WebClip của bạn</p></div>
-        <dl class="summary"><div><dt>Chế độ mở</dt><dd>Toàn màn hình</dd></div><div><dt>Icon</dt><dd>PNG · 180 × 180</dd></div><div><dt>Có thể gỡ</dt><dd>Có</dd></div></dl>
-        <details class="help"><summary>Cách dùng trên iPhone</summary><div class="help-content"><ol><li>Nhập tên, URL và chọn icon nếu muốn.</li><li>Nhấn <strong>Tạo & lưu vào Tệp</strong>, rồi chọn <strong>Lưu vào Tệp</strong> trong bảng chia sẻ. Nếu không hỗ trợ, dùng nút tải xuống.</li><li>Việc mở tệp từ Tệp có thể chỉ hiện bản xem trước. Để cài hồ sơ, thử mở bằng Safari hoặc Apple Configurator; sau khi iOS nhận hồ sơ, vào <strong>Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị</strong>.</li></ol><p>Hồ sơ chưa ký số nên iOS có thể hiện “Chưa được xác minh”. Tác giả là nhãn thông tin, không phải chữ ký xác thực.</p><p>Thêm công cụ này vào Màn hình chính: mở bằng Safari → Chia sẻ → Thêm vào Màn hình chính.</p></div></details>
+        <dl class="summary"><div><dt>Chế độ mở</dt><dd id="open-mode">Toàn màn hình</dd></div><div><dt>Icon</dt><dd>PNG · 180 × 180</dd></div><div><dt>Có thể gỡ</dt><dd>Có</dd></div></dl>
+        <details class="help"><summary>Cách dùng trên iPhone</summary><div class="help-content"><ol><li>Nhập tên, URL và chọn icon nếu muốn.</li><li>Nhấn <strong>Tạo & lưu vào Tệp</strong>, rồi chọn <strong>Lưu vào Tệp</strong> trong bảng chia sẻ. Nếu không hỗ trợ, dùng nút tải xuống.</li><li>Việc mở tệp từ Tệp có thể chỉ hiện bản xem trước. Để cài hồ sơ, thử mở bằng Safari hoặc Apple Configurator; sau khi iOS nhận hồ sơ, vào <strong>Cài đặt → Cài đặt chung → VPN & Quản lý thiết bị</strong>.</li></ol><p>Scheme mở ứng dụng cần app đích đã cài và hỗ trợ URL đó. iOS có thể hỏi xác nhận hoặc đi qua Safari.</p><p>Hồ sơ chưa ký số nên iOS có thể hiện “Chưa được xác minh”. Tác giả là nhãn thông tin, không phải chữ ký xác thực.</p><p>Thêm công cụ này vào Màn hình chính: mở bằng Safari → Chia sẻ → Thêm vào Màn hình chính.</p></div></details>
         <p class="offline-note" id="offline-status">Đang chuẩn bị chế độ offline…</p>
       </aside>
     </div>
-    <footer>Được tạo bởi <strong>Sentechtipsvn</strong></footer>
+    <footer>Được tạo bởi <a class="author-link" id="author-link" href="https://github.com/Sentechtipsvn" target="_blank" rel="noopener noreferrer">Sentechtipsvn</a></footer>
   </main>
   <noscript><p class="noscript">Bật JavaScript để tạo tệp mobileconfig.</p></noscript>
 </body>

@@ -1,9 +1,13 @@
 <div align="center">
   <img src="assets/readme-banner.svg" alt=".mobileconfig — iOS Profile Builder by Sentechtipsvn" width="100%" />
 
-  <p>
-    <code>[iOS](https://developer.apple.com/ios/)</code>&nbsp; <code>XML plist</code>&nbsp; <code>[Shortcuts](https://www.icloud.com/shortcuts/e91e152085c44f6692fe8bc0812d841c)</code>
-  </p>
+  <p align="center">
+  <a href="https://developer.apple.com/ios/"><code>iOS</code></a>
+  &nbsp;
+  <a href="https://developer.apple.com/documentation/"><code>XML plist</code></a>
+  &nbsp;
+  <a href="https://www.icloud.com/shortcuts/aedce64c80ea4a639e20958c073cfebd"><code>Shortcuts</code></a>
+</p>
 
   <p><strong>Tạo hồ sơ cấu hình iOS theo cách của bạn.</strong></p>
 

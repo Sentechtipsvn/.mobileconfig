@@ -2,7 +2,7 @@
   <img src="assets/readme-banner.svg" alt=".mobileconfig — iOS Profile Builder by Sentechtipsvn" width="100%" />
 
   <p>
-    <code>iOS</code>&nbsp; <code>XML plist</code>&nbsp; <code>Shortcuts</code>
+    <code>[iOS](https://developer.apple.com/ios/)</code>&nbsp; <code>XML plist</code>&nbsp; <code>[Shortcuts](https://www.icloud.com/shortcuts/e91e152085c44f6692fe8bc0812d841c)</code>
   </p>
 
   <p><strong>Tạo hồ sơ cấu hình iOS theo cách của bạn.</strong></p>

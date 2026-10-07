@@ -1,11 +1,10 @@
+![.mobileconfig Banner](https://capsule-render.vercel.app/api?type=waving&height=300&color=gradient&section=header&reversal=false&text=.mobileconfig&textBg=false&fontColor=D5D5D5&fontSize=70&fontAlign=50&fontAlignY=50&rotate=0&strokeWidth=0&descSize=20&descAlign=50&descAlignY=60)
 <div align="center">
   <a href="Language/en.md"><img src="https://img.shields.io/badge/Language-English-blue?style=for-the-badge" alt="English"></a>
   <a href="Language/vi.md"><img src="https://img.shields.io/badge/Ngôn_ngữ-Tiếng_Việt-red?style=for-the-badge" alt="Tiếng Việt"></a>
 </div>
 
 <br>
-
-# .mobileconfig - Sentechtipsvn — v1.1.0
 
 Static website for GitHub Pages, featuring a minimalist `#5c5c5c` UI with Neumorphism effects popping from the top-left to the bottom-right. It generates an XML plist on the device and sends the **entire plain text** to the **Save Configuration (Lưu cấu hình)** shortcut. The shortcut is responsible for file naming, `.mobileconfig` creation, folder selection menu, and saving to iCloud Drive.
 

@@ -1,4 +1,4 @@
-# .mobileconfig - Sentechtipsvn — v1.1.0
+# .mobileconfig IOS
 
 Static website for GitHub Pages, featuring a minimalist `#5c5c5c` UI with Neumorphism effects popping from the top-left to the bottom-right. It generates an XML plist on the device and sends the **entire plain text** to the **Save Configuration (Lưu cấu hình)** shortcut. The shortcut is responsible for file naming, `.mobileconfig` creation, folder selection menu, and saving to iCloud Drive.
 

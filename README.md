@@ -1,4 +1,3 @@
-![.mobileconfig Banner](https://capsule-render.vercel.app/api?type=waving&height=300&color=gradient&section=header&reversal=false&text=.mobileconfig&textBg=false&fontColor=D5D5D5&fontSize=70&fontAlign=50&fontAlignY=50&rotate=0&strokeWidth=0&descSize=20&descAlign=50&descAlignY=60)
 <div align="center">
   <img src="https://capsule-render.vercel.app/api?type=waving&height=300&color=gradient&section=header&reversal=false&text=.mobileconfig&textBg=false&fontColor=D5D5D5&fontSize=70&fontAlign=50&fontAlignY=50&rotate=0&strokeWidth=0&descSize=20&descAlign=50&descAlignY=60" alt=".mobileconfig banner" />
 </div>

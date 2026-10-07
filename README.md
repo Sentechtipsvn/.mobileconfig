@@ -3,9 +3,9 @@
 </div>
 
 <div align="center">
-  <a href="Language/en.md"><img src="https://img.shields.io/badge/🇺🇸_English-0969DA?style=flat-square" alt="English"></a>
+  <a href="Language/en.md"><img src="https://img.shields.io/badge/US_English-0969DA?style=flat-square" alt="English"></a>
   &nbsp;
-  <a href="Language/vi.md"><img src="https://img.shields.io/badge/🇻🇳_Tiếng_Việt-DA251D?style=flat-square" alt="Tiếng Việt"></a>
+  <a href="Language/vi.md"><img src="https://img.shields.io/badge/VN_Tiếng_Việt-DA251D?style=flat-square" alt="Tiếng Việt"></a>
 </div>
 
 <br>
